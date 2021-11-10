@@ -9,9 +9,13 @@ npm install --save ethers hardhat @nomiclabs/hardhat-waffle ethereum-waffle chai
 npm install --save-dev tailwindcss@latest postcss@latest autoprefixer@latest
 ```
 
-## Getting Started
+## Init tailwindcss
+```bash
+npx tailwindcss init -p
+```
 
-First, run the development server:
+## Getting Started
+Run the development server:
 
 ```bash
 npm run dev
