@@ -14,6 +14,11 @@ npm install --save-dev tailwindcss@latest postcss@latest autoprefixer@latest
 npx tailwindcss init -p
 ```
 
+## Init Solidity dev env
+```bash
+npx hardhat
+```
+
 ## Getting Started
 Run the development server:
 
@@ -22,4 +27,3 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
