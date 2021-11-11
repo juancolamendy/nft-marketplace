@@ -28,6 +28,10 @@ npx hardhat node
 ```bash
 npx hardhat compile
 ```
+# Test
+```bash
+npx hardhat test
+```
 
 ## Getting Started
 Run the development server:
