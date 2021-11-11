@@ -1,11 +1,19 @@
 require("@nomiclabs/hardhat-waffle");
 
+const privateKey = process.env.PRIVATE_KEY;
+const infuraId = process.env.INFURA_ID;
+
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
 
   for (const account of accounts) {
     console.log(account.address);
   }
+});
+
+task("envs", "Prints the list of environment variables", async () => {
+	console.log('Private Key:', privateKey);
+	console.log('Infura Id:', infuraId);
 });
 
 module.exports = {
@@ -17,14 +25,12 @@ module.exports = {
     /*
     mumbai: {
       // Infura
-      // url: `https://polygon-mumbai.infura.io/v3/${infuraId}`
-      url: "https://rpc-mumbai.matic.today",
+      url: `https://polygon-mumbai.infura.io/v3/${infuraId}`,
       accounts: [privateKey]
     },
-    matic: {
+    mainnet: {
       // Infura
-      // url: `https://polygon-mainnet.infura.io/v3/${infuraId}`,
-      url: "https://rpc-mainnet.maticvigil.com",
+      url: `https://polygon-mainnet.infura.io/v3/${infuraId}`,
       accounts: [privateKey]
     }
     */
