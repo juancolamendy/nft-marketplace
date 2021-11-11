@@ -19,6 +19,16 @@ npx tailwindcss init -p
 npx hardhat
 ```
 
+## Run local node
+```bash
+npx hardhat node
+```
+
+## Compile contracts
+```bash
+npx hardhat compile
+```
+
 ## Getting Started
 Run the development server:
 
