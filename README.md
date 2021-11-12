@@ -33,6 +33,11 @@ npx hardhat compile
 npx hardhat test
 ```
 
+# Deploy
+```bash
+npx hardhat run scripts/deploy.js --network localhost
+```
+
 ## Getting Started
 Run the development server:
 
