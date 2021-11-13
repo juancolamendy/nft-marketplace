@@ -37,6 +37,7 @@ export default function CreateItem() {
         }
       );
       const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+      console.log(`image file uploded to url ${url}`);
       setFileUrl(url);
     } catch (error) {
       console.log('Error uploading image file: ', error);
@@ -46,23 +47,28 @@ export default function CreateItem() {
   // handle create item
   const handleCreateItem = async () => {
     const url = await uploadItemMetada();
-    await createItem(url);
+    if(url) {
+      console.log(`metadata file uploded to url ${url}`);
+      await createItem(url);
+    }
     router.push('/');
   };
 
   // upload item metadata
   const uploadItemMetada = async () => {
     // get input from the state
-    const { name, description, price } = state;
+    const { name, description } = state;
     
     // validation
-    if (!name || !description || !price || !fileUrl) return;
+    if (!name || !description || !fileUrl) return;
 
+    // build metadata
     const metadata = JSON.stringify({
       name, description, image: fileUrl
     });
 
     try {
+      // post metadata and return url
       const added = await client.add(metadata);
       return `https://ipfs.infura.io/ipfs/${added.path}`;
     } catch (error) {
@@ -73,22 +79,63 @@ export default function CreateItem() {
 
   // create item in ethereum
   const createItem = async (url) => {
+    // get input from state
+    const { price } = state;
+
+    // validation
+    if(!price) return;
+    
+    // open modal to get a connection
+    const web3Modal = new Web3Modal();
+    const connection = await web3Modal.connect();
+    // get provider
+    const provider = new ethers.providers.Web3Provider(connection);
+    // get signer to sign the trasaction
+    const signer = provider.getSigner();
+
+    // get reference to nft contract
+    let contract = new ethers.Contract(nftaddress, NFT.abi, signer);
+    
+    // run transaction
+    let transaction = await contract.createToken(url);
+    // wait for the transaction to finish
+    const tx = await transaction.wait();
+    
+    // get return value
+    const event = tx.events[0];
+    let value = event.args[2];
+    let tokenId = value.toNumber();    
+
+    // get price as ether
+    const priceEth = ethers.utils.parseUnits(price, 'ether');
+
+    // get reference to market contract
+    contract = new ethers.Contract(nftmarketaddress, Market.abi, signer);
+    let listingPrice = await contract.getListingPrice();
+    listingPrice = listingPrice.toString();
+
+    // create item
+    transaction = await contract.createMarketItem(nftaddress, tokenId, priceEth, { value: listingPrice });
+    await transaction.wait();
   };
 
   return(
     <div className="flex justify-center">
       <div className="w-1/2 flex flex-col pb-12">
         <input 
+          value={state.name}
           placeholder="Asset Name"
           className="mt-8 border rounded p-4"
           onChange={e => setState({ ...state, name: e.target.value })}
         />
         <textarea
+          value={state.description}
           placeholder="Asset Description"
           className="mt-2 border rounded p-4"
           onChange={e => setState({ ...state, description: e.target.value })}
         />
         <input
+          value={state.price}
           placeholder="Asset Price in Eth"
           className="mt-2 border rounded p-4"
           onChange={e => setState({ ...state, price: e.target.value })}

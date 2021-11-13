@@ -75,7 +75,7 @@ contract NFTMarket is ReentrancyGuard {
 
     // transfer the ownership to the contract address.
     // right now, the person writing the transaction owns the contract item.
-    // then we transfer the ownership to the buyer
+    // then we transfer the ownership to the contract
     IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
 
     emit MarketItemCreated(

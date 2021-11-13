@@ -24,7 +24,7 @@ export default function Home() {
 
   const loadNFTs = async () => {
     // Get provider
-    const provider = new ethers.providers.JsonRpcProvider();
+    const provider = new ethers.providers.JsonRpcProvider(ethereumUrl);
     
     // Reference contracts
     const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
@@ -39,6 +39,7 @@ export default function Home() {
       const meta = await axios.get(tokenUri)
       let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
       let item = {
+        tokenId: i.tokenId,
         price,
         itemId: i.itemId.toNumber(),
         seller: i.seller,
@@ -80,6 +81,7 @@ export default function Home() {
     loadNFTs();
   };  
 
+  console.log(nfts);
   // return if there is no nfts
   if (loadingState === 'loaded' && !nfts.length) return (<h1 className="px-20 py-10 text-3xl">No items in marketplace</h1>);
   // if there are ntfs, render them out
