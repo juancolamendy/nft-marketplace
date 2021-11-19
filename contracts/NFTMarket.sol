@@ -10,14 +10,17 @@ import "hardhat/console.sol";
 contract NFTMarket is ReentrancyGuard {
   using Counters for Counters.Counter;
 
+  // counters
   Counters.Counter private _itemIds;
   Counters.Counter private _itemsSold;
 
-  // who is the owner of market contract to pay the commission on every item sold
+  // who is the owner of market contract
   address payable owner;
-  // commission to pay for listing in the market. pay to owner 
+  
+  // commission to pay for listing in the market 
   uint256 listingPrice = 0.025 ether;
 
+  // market item struct
   struct MarketItem {
     uint256 itemId;
     address nftContract;
@@ -28,8 +31,10 @@ contract NFTMarket is ReentrancyGuard {
     bool sold;
   }
 
+  // map of itemId => marketItem
   mapping(uint256 => MarketItem) private idToMarketItem;
 
+  // notification event
   event MarketItemCreated (
     uint256 indexed itemId,
     address indexed nftContract,
@@ -62,7 +67,8 @@ contract NFTMarket is ReentrancyGuard {
 
     _itemIds.increment();
     uint256 itemId = _itemIds.current();
-  
+ 
+    // add marketItem. ms.sender is seller. No owner.
     idToMarketItem[itemId] =  MarketItem(
       itemId,
       nftContract,
@@ -74,7 +80,7 @@ contract NFTMarket is ReentrancyGuard {
     );
 
     // transfer the ownership to the contract address.
-    // right now, the person writing the transaction owns the contract item.
+    // right now, the person executing the transaction owns the contract item.
     // then we transfer the ownership to the contract
     IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
 
