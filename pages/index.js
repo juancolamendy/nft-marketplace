@@ -67,11 +67,11 @@ export default function Home() {
     const signer = provider.getSigner();
 
     // Reference the market contract
-    const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer);
+    const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer);
 
     // Execute the transaction: createMarketSale
     const price = ethers.utils.parseUnits(nft.price.toString(), 'ether');
-    const transaction = await contract.createMarketSale(nftaddress, nft.itemId, {
+    const transaction = await marketContract.createMarketSale(nftaddress, nft.itemId, {
       value: price
     });
     // Wait for the transaction to finish

@@ -30,6 +30,7 @@ export default function CreateItem() {
   // handle file change. post it to ipfs
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
+    console.log('Handling file:', file);
     try {
       const added = await client.add(
         file, {
@@ -94,15 +95,15 @@ export default function CreateItem() {
     const signer = provider.getSigner();
 
     // get reference to nft contract
-    let contract = new ethers.Contract(nftaddress, NFT.abi, signer);
+    const nftContract = new ethers.Contract(nftaddress, NFT.abi, signer);
     
     // run transaction
-    let transaction = await contract.createToken(url);
+    let transaction = await nftContract.createToken(url);
     // wait for the transaction to finish
-    const tx = await transaction.wait();
+    const txRes = await transaction.wait();
     
     // get return value
-    const event = tx.events[0];
+    const event = txRes.events[0];
     let value = event.args[2];
     let tokenId = value.toNumber();    
 
@@ -110,12 +111,12 @@ export default function CreateItem() {
     const priceEth = ethers.utils.parseUnits(price, 'ether');
 
     // get reference to market contract
-    contract = new ethers.Contract(nftmarketaddress, Market.abi, signer);
-    let listingPrice = await contract.getListingPrice();
+    const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer);
+    let listingPrice = await marketContract.getListingPrice();
     listingPrice = listingPrice.toString();
 
     // create item
-    transaction = await contract.createMarketItem(nftaddress, tokenId, priceEth, { value: listingPrice });
+    transaction = await marketContract.createMarketItem(nftaddress, tokenId, priceEth, { value: listingPrice });
     await transaction.wait();
   };
 

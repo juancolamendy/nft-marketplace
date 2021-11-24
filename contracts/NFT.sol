@@ -10,6 +10,7 @@ import "hardhat/console.sol";
 contract NFT is ERC721URIStorage {
     using Counters for Counters.Counter;
     
+    // keep up with incrementing values
     Counters.Counter private _tokenIds;
     address marketAddress;
 

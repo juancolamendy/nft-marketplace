@@ -28,12 +28,13 @@ npx hardhat node
 ```bash
 npx hardhat compile
 ```
+
 # Test
 ```bash
 npx hardhat test
 ```
 
-# Deploy
+# Deploy localhost
 ```bash
 npx hardhat run scripts/deploy.js --network localhost
 ```

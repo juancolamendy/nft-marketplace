@@ -15,29 +15,44 @@ describe("NFTMarket", function() {
     await nft.deployed()
     const nftContractAddress = nft.address
 
+    // print out addresses
+    console.log(`marketAddress: ${marketAddress} nftContractAddress: ${nftContractAddress}`)
+
     // Get listing pricing
     let listingPrice = await market.getListingPrice()
     listingPrice = listingPrice.toString()
 
+    // Create tokens
+    let tx = await nft.createToken("https://www.mytokenlocation1.com")
+    let txRes = await tx.wait();
+    const id1 = txRes.events[0].args[2].toNumber();
+    console.log(id1);
+    
+    tx = await nft.createToken("https://www.mytokenlocation2.com")
+    txRes = await tx.wait();
+    const id2 = txRes.events[0].args[2].toNumber();
+
+    // Print out token ids
+    console.log(`minted tokens id => ${id1}, ${id2}`);
+    
     // Auction price. How much does the seller is willing to sell the tokens
     const auctionPrice = ethers.utils.parseUnits('1', 'ether')
-
-    // Create tokens
-    await nft.createToken("https://www.mytokenlocation.com")
-    await nft.createToken("https://www.mytokenlocation2.com")
-  
+    
     // List tokens in the marketplace
-    await market.createMarketItem(nftContractAddress, 1, auctionPrice, { value: listingPrice })
-    await market.createMarketItem(nftContractAddress, 2, auctionPrice, { value: listingPrice })
+    tx = await market.createMarketItem(nftContractAddress, id1, auctionPrice, { value: listingPrice })
+    await tx.wait()
+    tx = await market.createMarketItem(nftContractAddress, id2, auctionPrice, { value: listingPrice })
+    await tx.wait()
 
     // Get second account as the buyer
     const [_, buyerAddress] = await ethers.getSigners()
 
     // buyer connects to the marketplace. buyer becomes the msg.sender and call createMarketSale
-    await market.connect(buyerAddress).createMarketSale(nftContractAddress, 1, { value: auctionPrice})
+    tx = await market.connect(buyerAddress).createMarketSale(nftContractAddress, 1, { value: auctionPrice})
+    await tx.wait()
 
     // Get the list of available tokens in the marketplace 
-    items = await market.fetchMarketItems()
+    let items = await market.fetchMarketItems()
     items = await Promise.all(items.map(async i => {
       const tokenUri = await nft.tokenURI(i.tokenId)
       let item = {
@@ -50,5 +65,6 @@ describe("NFTMarket", function() {
       return item
     }))
     console.log('items: ', items)
+
   })
 })

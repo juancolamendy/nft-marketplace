@@ -2,6 +2,8 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
+// ReentrancyGuard: prevents from hitting the contract with multiple requests
+// Prevent reentry attacks
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
@@ -11,7 +13,9 @@ contract NFTMarket is ReentrancyGuard {
   using Counters for Counters.Counter;
 
   // counters
+  // keep up with the numbers of items
   Counters.Counter private _itemIds;
+  // keep up with the number of items sold
   Counters.Counter private _itemsSold;
 
   // who is the owner of market contract
@@ -45,7 +49,7 @@ contract NFTMarket is ReentrancyGuard {
     bool sold
   );
 
-  // Constructor
+  // constructor
   constructor() {
     // owner is the person deploying the contract
     // owner is the marketplace owner
@@ -58,17 +62,19 @@ contract NFTMarket is ReentrancyGuard {
     return listingPrice;
   }
   
-  /* Places an item for sale on the marketplace. Lister must pay listing price */
+  // Places an item for sale on the marketplace. Lister must pay/transfer the listing price
   // msg.sender is the seller listing its products
   function createMarketItem(address nftContract, uint256 tokenId, uint256 price) public payable nonReentrant {
     // Validations
     require(price > 0, "Price must be at least 1 wei");
     require(msg.value == listingPrice, "Price must be equal to listing price");
 
+    // get next id
     _itemIds.increment();
     uint256 itemId = _itemIds.current();
  
-    // add marketItem. ms.sender is seller. No owner.
+    // add marketItem to the map
+    // ms.sender is seller. No owner == address(0)
     idToMarketItem[itemId] =  MarketItem(
       itemId,
       nftContract,
@@ -79,11 +85,13 @@ contract NFTMarket is ReentrancyGuard {
       false
     );
 
-    // transfer the ownership to the contract address.
-    // right now, the person executing the transaction owns the contract item.
-    // then we transfer the ownership to the contract
+    // transfer the ownership of the token to the contract itself.
+    // until this point, the person executing the transaction owns the token.
+    // then the contract will take ownership of this token in order to transfer it to next buyer.
+    // Call the transferFrom function in IERC721 contract.
     IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
 
+    // emit event
     emit MarketItemCreated(
       itemId,
       nftContract,
@@ -95,8 +103,8 @@ contract NFTMarket is ReentrancyGuard {
     );
   }
 
-  /* Creates the sale of a marketplace item */
-  /* Transfers ownership of the item, as well as funds between parties */
+  // Creates the sale of a marketplace item.
+  // Transfers ownership of the item, as well as funds between parties.
   // msg.sender is the buyer
   function createMarketSale(address nftContract, uint256 itemId) public payable nonReentrant {
     // get values
@@ -110,9 +118,12 @@ contract NFTMarket is ReentrancyGuard {
     // two operations:
     // 1- send money to the seller
     // 2- transfer ownership to the buyer
-    // transfer the value of the transaction to the seller 
+    // 1- transfer the value/money of the transaction to the seller 
+    // seller receives Ether because it's type of address payable
     idToMarketItem[itemId].seller.transfer(msg.value);
-    // transfer ownership of the contract item to the buyer from the contract address
+    // 2- transfer ownership of the contract item to the buyer from the contract address
+    // Until this point, the owner is the contract itself
+    // Call the transferFrom function in IERC721 contract
     IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
    
     // update the stored mapping
