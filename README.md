@@ -39,6 +39,18 @@ npx hardhat test
 npx hardhat run scripts/deploy.js --network localhost
 ```
 
+# Deploy to ropsten
+```bash
+export INFURA_KEY="";
+export ROPSTEN_ACCT_SECRET=""; 
+npx hardhat run scripts/deploy.js --network ropsten
+```
+
+## Export infura key
+```bash
+export NEXT_PUBLIC_INFURA_KEY=""
+```
+
 ## Getting Started
 Run the development server:
 

@@ -15,7 +15,7 @@ import NFT from '../artifacts/contracts/NFT.sol/NFT.json';
 import Market from '../artifacts/contracts/NFTMarket.sol/NFTMarket.json';
 
 // print out node provider url (ethereumUrl)
-console.log(`Connecting to ethereumUrl: ${ethereumUrl}`);
+console.log(`Env: ethereumUrl: ${ethereumUrl} nftaddress: ${nftaddress} nftmarketaddress: ${nftmarketaddress}`);
 
 export default function Home() {
   const [nfts, setNfts] = useState([]);
