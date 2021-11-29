@@ -22,18 +22,6 @@ module.exports = {
     hardhat: {
       chainId: 1337
     },
-    /*
-    mumbai: {
-      // Infura
-      url: `https://polygon-mumbai.infura.io/v3/${infuraId}`,
-      accounts: [privateKey]
-    },
-    mainnet: {
-      // Infura
-      url: `https://polygon-mainnet.infura.io/v3/${infuraId}`,
-      accounts: [privateKey]
-    }
-    */
   },
   solidity: {
     version: "0.8.4",
