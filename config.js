@@ -1,3 +1,3 @@
-export const nftmarketaddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-export const nftaddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
-export const ethereumUrl = "http://127.0.0.1:8545"
+export const nftmarketaddress = "0xF776A05706e465e406D20Aa85a0e992e54b9082E";
+export const nftaddress = "0xff77D44D4C4f51C3E70fcFb1B1BeA337b322F1AA";
+export const ethereumUrl = `https://ropsten.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`;
