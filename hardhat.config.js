@@ -8,6 +8,16 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   }
 });
 
+task("balances", "Prints the list of account balances", async () => {
+  const accounts = await hre.ethers.getSigners();
+
+  for (const account of accounts) {
+    let balance = await hre.ethers.provider.getBalance(account.address);
+    balance = balance / 1000000000000000000;
+    console.log(account.address, "=>", balance.toString());
+  }
+});
+
 task("envs", "Prints the list of environment variables", async () => {
   console.log('INFURA_KEY:', process.env.INFURA_KEY);
   console.log(`ROPSTEN_ACCT_SECRET: 0x${process.env.ROPSTEN_ACCT_SECRET}`);

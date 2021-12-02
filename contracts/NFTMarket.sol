@@ -85,10 +85,10 @@ contract NFTMarket is ReentrancyGuard {
       false
     );
 
-    // transfer the ownership of the token to the contract itself.
+    // transfer the ownership of the token to this market contract.
     // until this point, the person executing the transaction owns the token.
-    // then the contract will take ownership of this token in order to transfer it to next buyer.
-    // Call the transferFrom function in IERC721 contract.
+    // then the market contract will take ownership of this token in order to transfer it to the buyer later on.
+    // Call the transferFrom function in IERC721 contract for ntf contract.
     IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
 
     // emit event
@@ -116,13 +116,13 @@ contract NFTMarket is ReentrancyGuard {
     require(msg.value == price, "Please submit the asking price in order to complete the purchase");
 
     // two operations:
-    // 1- send money to the seller
+    // 1- send money to the seller (money send to this function)
     // 2- transfer ownership to the buyer
     // 1- transfer the value/money of the transaction to the seller 
     // seller receives Ether because it's type of address payable
     idToMarketItem[itemId].seller.transfer(msg.value);
-    // 2- transfer ownership of the contract item to the buyer from the contract address
-    // Until this point, the owner is the contract itself
+    // 2- transfer ownership of the item from the market contract to the buyer
+    // Until this point, the owner is this market contract
     // Call the transferFrom function in IERC721 contract
     IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
    
@@ -133,8 +133,8 @@ contract NFTMarket is ReentrancyGuard {
     // increment items sold
     _itemsSold.increment();
     
-    // pay to the marketplace the listing price (commission)
-    payable(owner).transfer(listingPrice);
+    // pay to the marketplace owner the listing price (commission)
+    owner.transfer(listingPrice);
   }
 
   /* Returns all unsold market items */
