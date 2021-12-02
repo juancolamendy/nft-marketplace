@@ -13,6 +13,7 @@ describe("NFTMarket", function() {
     const [appAcct, sellerAcct, buyerAcct] = await ethers.getSigners()
 
     // Print out balances
+    console.log('Balances at the beginning');
     await printBalanceAsync("app", appAcct);
     await printBalanceAsync("seller", sellerAcct);
     await printBalanceAsync("buyer", buyerAcct);
@@ -30,6 +31,7 @@ describe("NFTMarket", function() {
     const nftContractAddress = nft.address
 
     // Print out balances
+    console.log('Balance after deployment');
     await printBalanceAsync("app", appAcct);
 
     // print out addresses
@@ -43,16 +45,16 @@ describe("NFTMarket", function() {
     let tx = await nft.connect(sellerAcct).createToken("https://www.mytokenlocation1.com")
     let txRes = await tx.wait();
     const id1 = txRes.events[0].args[2].toNumber();
-    console.log(id1);
     
     tx = await nft.connect(sellerAcct).createToken("https://www.mytokenlocation2.com")
     txRes = await tx.wait();
     const id2 = txRes.events[0].args[2].toNumber();
 
     // Print out token ids
-    console.log(`minted tokens id => ${id1}, ${id2}`);
+    console.log(`Minted tokens id => ${id1}, ${id2}`);
     
     // Print out balances
+    console.log('Balance after minting');
     await printBalanceAsync("app", appAcct);
     await printBalanceAsync("seller", sellerAcct); 
     await printBalanceAsync("buyer", buyerAcct);
@@ -66,12 +68,18 @@ describe("NFTMarket", function() {
     tx = await market.connect(sellerAcct).createMarketItem(nftContractAddress, id2, auctionPrice, { value: listingPrice })
     await tx.wait()
     
+    // Print out balances
+    console.log('Balance after listing in market');
+    await printBalanceAsync("app", appAcct);
+    await printBalanceAsync("seller", sellerAcct); 
+    await printBalanceAsync("buyer", buyerAcct);
+
     // buyer connects to the marketplace. buyer becomes the msg.sender and call createMarketSale
     tx = await market.connect(buyerAcct).createMarketSale(nftContractAddress, 1, { value: auctionPrice})
     await tx.wait()
 
     // Print out balances
-    console.log('Printing out balances after buying');
+    console.log('Balances after buying');
     await printBalanceAsync("app", appAcct);
     await printBalanceAsync("seller", sellerAcct);
     await printBalanceAsync("buyer", buyerAcct);

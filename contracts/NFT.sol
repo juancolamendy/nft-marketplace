@@ -25,8 +25,11 @@ contract NFT is ERC721URIStorage {
 	
 	      console.log('Minting a new NFT token. tokenURI, itemId, sender', tokenURI, newItemId, msg.sender);
 
+        // mint the token
         _mint(msg.sender, newItemId);
         _setTokenURI(newItemId, tokenURI);
+
+        // approve the token in the market
         setApprovalForAll(marketAddress, true);
         
 	      return newItemId;
