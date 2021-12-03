@@ -4,7 +4,9 @@ import axios from 'axios'
 import Web3Modal from "web3modal"
 
 import {
-  nftmarketaddress, nftaddress
+  ethereumUrl,
+  nftmarketaddress, 
+  nftaddress
 } from '../config'
 
 // import ABI to interact with contract on the client-side
@@ -25,44 +27,49 @@ export default function CreatorDashboard() {
     loadNFTs()
   }, [])
 
+  // functions
   async function loadNFTs() {
-    // open modal to get a connection
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    // get provider
-    const provider = new ethers.providers.Web3Provider(connection)
-    // get signer
-    const signer = provider.getSigner()
+    try {
+      // open modal to get a connection
+      const web3Modal = new Web3Modal()
+      const connection = await web3Modal.connect()
+      // get provider
+      const provider = new ethers.providers.Web3Provider(connection)
+      // get signer
+      const signer = provider.getSigner()
 
-    // reference contracts
-    const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
-    const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
+      // reference contracts
+      const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
+      const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
 
-    // call fetchItemsCreated in marketContract
-    const data = await marketContract.fetchItemsCreated()
-    
-    const items = await Promise.all(data.map(async i => {
-      const tokenUri = await tokenContract.tokenURI(i.tokenId)
-      const meta = await axios.get(tokenUri)
-      let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
-      let item = {
-        price,
-        tokenId: i.tokenId.toNumber(),
-        seller: i.seller,
-        owner: i.owner,
-        sold: i.sold,
-        image: meta.data.image,
-      }
-      return item
-    }))
-    
-    // filter out array of items that have been sold
-    const soldItems = items.filter(i => i.sold)
-    
-    // update the state
-    setSold(soldItems)
-    setNfts(items)
-    setLoadingState('loaded') 
+      // call fetchItemsCreated in marketContract
+      const data = await marketContract.fetchItemsCreated()
+      
+      const items = await Promise.all(data.map(async i => {
+        const tokenUri = await tokenContract.tokenURI(i.tokenId)
+        const meta = await axios.get(tokenUri)
+        let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
+        let item = {
+          price,
+          tokenId: i.tokenId.toNumber(),
+          seller: i.seller,
+          owner: i.owner,
+          sold: i.sold,
+          image: meta.data.image,
+        }
+        return item
+      }))
+      
+      // filter out array of items that have been sold
+      const soldItems = items.filter(i => i.sold)
+      
+      // update the state
+      setSold(soldItems)
+      setNfts(items)
+      setLoadingState('loaded') 
+    } catch(error) {
+      console.log('error:', error);
+    }
   }
 
   // render out the view

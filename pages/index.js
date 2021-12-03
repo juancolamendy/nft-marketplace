@@ -60,28 +60,36 @@ export default function Home() {
   };
 
   const buyNft = async (nft) => {
-    // web3Modal support multiple providers/wallets
-    const web3Modal = new Web3Modal();
-    const connection = await web3Modal.connect();
+    try {
+      console.log('trying to connect');
+      // web3Modal support multiple providers/wallets
+      const web3Modal = new Web3Modal();
+      const connection = await web3Modal.connect();
 
-    // Get providers
-    const provider = new ethers.providers.Web3Provider(connection);
-    // Get signer because we are executing/signing a transaction
-    const signer = provider.getSigner();
+      // Get providers
+      const provider = new ethers.providers.Web3Provider(connection);
+      // Get signer because we are executing/signing a transaction
+      console.log('get signer');
+      const signer = provider.getSigner();
 
-    // Reference the market contract
-    const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer);
+      // Reference the market contract
+      const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer);
 
-    // Execute the transaction: createMarketSale
-    const price = ethers.utils.parseUnits(nft.price.toString(), 'ether');
-    const transaction = await marketContract.createMarketSale(nftaddress, nft.itemId, {
-      value: price
-    });
-    // Wait for the transaction to finish
-    await transaction.wait();
+      // Execute the transaction: createMarketSale
+      console.log('creating a market sale');
+      const price = ethers.utils.parseUnits(nft.price.toString(), 'ether');
+      const transaction = await marketContract.createMarketSale(nftaddress, nft.itemId, {
+        value: price
+      });
+      // Wait for the transaction to finish
+      await transaction.wait();
+      console.log('finished market sale');
 
-    // Reload the nfts
-    loadNFTs();
+      // Reload the nfts
+      loadNFTs();
+    } catch(error) {
+      console.log('error: ', error);
+    }
   };  
 
   console.log(nfts);

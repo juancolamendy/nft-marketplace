@@ -88,39 +88,51 @@ export default function CreateItem() {
 
     // validation
     if(!price) return;
-    
-    // open modal to get a connection
-    const web3Modal = new Web3Modal();
-    const connection = await web3Modal.connect();
-    // get provider
-    const provider = new ethers.providers.Web3Provider(connection);
-    // get signer to sign the trasaction
-    const signer = provider.getSigner();
 
-    // get reference to nft contract
-    const nftContract = new ethers.Contract(nftaddress, NFT.abi, signer);
-    
-    // run transaction
-    let transaction = await nftContract.createToken(url);
-    // wait for the transaction to finish
-    const txRes = await transaction.wait();
-    
-    // get return value
-    const event = txRes.events[0];
-    let value = event.args[2];
-    let tokenId = value.toNumber();    
+    try {
+      // open modal to get a connection
+      console.log('trying to connect');
+      const web3Modal = new Web3Modal();
+      const connection = await web3Modal.connect();
+      // get provider
+      const provider = new ethers.providers.Web3Provider(connection);
+      // get signer to sign the trasaction
+      console.log('get signer');
+      const signer = provider.getSigner();
 
-    // get price as ether
-    const priceEth = ethers.utils.parseUnits(price, 'ether');
+      // get reference to nft contract
+      console.log('connecting to nft contract');
+      const nftContract = new ethers.Contract(nftaddress, NFT.abi, signer);
+      
+      // run transaction
+      console.log('creating token');
+      let transaction = await nftContract.createToken(url);
+      // wait for the transaction to finish
+      const txRes = await transaction.wait();
+      
+      // get return value
+      const event = txRes.events[0];
+      let value = event.args[2];
+      let tokenId = value.toNumber();
+      console.log('token created: ', tokenId);
 
-    // get reference to market contract
-    const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer);
-    let listingPrice = await marketContract.getListingPrice();
-    listingPrice = listingPrice.toString();
+      // get price as ether
+      const priceEth = ethers.utils.parseUnits(price, 'ether');
 
-    // create item
-    transaction = await marketContract.createMarketItem(nftaddress, tokenId, priceEth, { value: listingPrice });
-    await transaction.wait();
+      // get reference to market contract
+      console.log('connecting to market contract');
+      const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer);
+      let listingPrice = await marketContract.getListingPrice();
+      listingPrice = listingPrice.toString();
+
+      // create item
+      console.log('listing item');
+      transaction = await marketContract.createMarketItem(nftaddress, tokenId, priceEth, { value: listingPrice });
+      await transaction.wait();
+      console.log('finished creating item');      
+    } catch(error) {
+      console.log('error: ', error);
+    }
   };
 
   return(
